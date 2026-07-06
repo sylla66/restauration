@@ -1,6 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
-import { ShoppingCart, User, LogOut, Menu as MenuIcon } from "lucide-react";
+import { ShoppingCart, User, LogOut, Menu as MenuIcon, CreditCard } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/CartContext";
 import { useState } from "react";
@@ -21,9 +21,16 @@ export default function PublicLayout() {
             <Link to="/menu" className="text-sm text-gray-600 hover:text-[#e67e22]">Menu</Link>
             {user ? (
               <>
-                <Link to="/orders" className="text-sm text-gray-600 hover:text-[#e67e22]">Mes commandes</Link>
+                {user.role === "LIVREUR" ? (
+                  <Link to="/delivery" className="text-sm text-gray-600 hover:text-[#e67e22]">Livraisons</Link>
+                ) : (
+                  <Link to="/orders" className="text-sm text-gray-600 hover:text-[#e67e22]">Mes commandes</Link>
+                )}
                 {user.role === "ADMIN" && <Link to="/admin" className="text-sm text-gray-600 hover:text-[#e67e22]">Admin</Link>}
-                <span className="text-sm text-gray-500">{user.name}</span>
+                {user.role !== "LIVREUR" && <Link to="/payments" className="text-sm text-gray-600 hover:text-[#e67e22]"><CreditCard className="w-4 h-4 inline" /></Link>}
+                <Link to="/profile" className="flex items-center gap-1 text-sm text-gray-600 hover:text-[#e67e22]">
+                  <User className="w-4 h-4" /> {user.name}
+                </Link>
                 <Button variant="ghost" size="sm" onClick={() => { logout(); navigate("/"); }}>
                   <LogOut className="w-4 h-4" />
                 </Button>
@@ -47,7 +54,12 @@ export default function PublicLayout() {
             <Link to="/menu" className="text-sm" onClick={() => setShowMenu(false)}>Menu</Link>
             {user ? (
               <>
-                <Link to="/orders" className="text-sm" onClick={() => setShowMenu(false)}>Mes commandes</Link>
+                {user.role === "LIVREUR" ? (
+                  <Link to="/delivery" className="text-sm" onClick={() => setShowMenu(false)}>Livraisons</Link>
+                ) : (
+                  <Link to="/orders" className="text-sm" onClick={() => setShowMenu(false)}>Mes commandes</Link>
+                )}
+                <Link to="/profile" className="text-sm" onClick={() => setShowMenu(false)}>Profil</Link>
                 {user.role === "ADMIN" && <Link to="/admin" onClick={() => setShowMenu(false)}>Admin</Link>}
                 <button onClick={() => { logout(); navigate("/"); setShowMenu(false); }} className="text-sm text-left text-red-500">Déconnexion</button>
               </>

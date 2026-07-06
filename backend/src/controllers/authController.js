@@ -111,4 +111,43 @@ async function registerStaff(req, res, next) {
   }
 }
 
-module.exports = { register, login, getMe, registerStaff };
+async function updateProfile(req, res, next) {
+  try {
+    const { name, email, phone, currentPassword, newPassword } = req.body;
+    const data = {};
+
+    if (name) data.name = name;
+    if (email !== undefined) data.email = email;
+    if (phone) data.phone = phone;
+
+    const user = await prisma.user.findUnique({ where: { id: req.user.id } });
+    if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
+
+    if (newPassword) {
+      const valid = await bcrypt.compare(currentPassword, user.passwordHash);
+      if (!valid) return res.status(400).json({ error: "Mot de passe actuel incorrect" });
+      data.passwordHash = await bcrypt.hash(newPassword, 10);
+    }
+
+    if (phone && phone !== user.phone) {
+      const existing = await prisma.user.findUnique({ where: { phone } });
+      if (existing) return res.status(409).json({ error: "Ce téléphone est déjà utilisé" });
+    }
+    if (email && email !== user.email) {
+      const existing = await prisma.user.findUnique({ where: { email } });
+      if (existing) return res.status(409).json({ error: "Cet email est déjà utilisé" });
+    }
+
+    const updated = await prisma.user.update({
+      where: { id: req.user.id },
+      data,
+      select: { id: true, name: true, email: true, phone: true, role: true },
+    });
+
+    res.json({ user: updated });
+  } catch (err) {
+    next(err);
+  }
+}
+
+module.exports = { register, login, getMe, registerStaff, updateProfile };

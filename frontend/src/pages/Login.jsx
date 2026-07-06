@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
+import { useToast } from "@/context/ToastContext";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input, Label } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -9,6 +10,7 @@ export default function Login() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const toast = useToast();
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -17,8 +19,10 @@ export default function Login() {
     setError("");
     try {
       await login(phone, password);
+      toast("Connecté !");
       navigate("/menu");
     } catch (err) {
+      toast(err.message, "error");
       setError(err.message);
     }
   }

@@ -32,4 +32,16 @@ const registerStaffRules = [
     .withMessage("Rôle doit être LIVREUR ou GERANT"),
 ];
 
-module.exports = { registerRules, loginRules, registerStaffRules };
+const updateProfileRules = [
+  body("name").optional().trim().notEmpty().withMessage("Le nom ne peut pas être vide"),
+  body("email").optional().isEmail().withMessage("Email invalide"),
+  body("phone").optional().trim().notEmpty().withMessage("Le téléphone ne peut pas être vide"),
+  body("currentPassword").optional().notEmpty().withMessage("Mot de passe actuel requis"),
+  body("newPassword").optional().isLength({ min: 6 }).withMessage("Le nouveau mot de passe doit contenir au moins 6 caractères"),
+  body().custom((body) => {
+    if (body.newPassword && !body.currentPassword) throw new Error("Mot de passe actuel requis pour changer le mot de passe");
+    return true;
+  }),
+];
+
+module.exports = { registerRules, loginRules, registerStaffRules, updateProfileRules };

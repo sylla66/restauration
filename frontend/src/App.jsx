@@ -1,7 +1,9 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
 import { CartProvider } from "@/context/CartContext";
+import { ToastProvider } from "@/context/ToastContext";
 import PublicLayout from "@/layouts/PublicLayout";
+import AdminLayout from "@/layouts/AdminLayout";
 import Home from "@/pages/Home";
 import Menu from "@/pages/Menu";
 import Cart from "@/pages/Cart";
@@ -9,13 +11,25 @@ import Login from "@/pages/Login";
 import Register from "@/pages/Register";
 import Orders from "@/pages/Orders";
 import OrderDetail from "@/pages/OrderDetail";
+import Profile from "@/pages/Profile";
 import Dashboard from "@/pages/Dashboard";
+import AdminRestaurants from "@/pages/admin/AdminRestaurants";
+import AdminRestaurantForm from "@/pages/admin/AdminRestaurantForm";
+import AdminOrders from "@/pages/admin/AdminOrders";
+import AdminStaff from "@/pages/admin/AdminStaff";
+import AdminReviews from "@/pages/admin/AdminReviews";
+import AdminComplaints from "@/pages/admin/AdminComplaints";
+import AdminUsers from "@/pages/admin/AdminUsers";
+import Payments from "@/pages/Payments";
+import DeliveryList from "@/pages/delivery/DeliveryList";
+import DeliveryDetail from "@/pages/delivery/DeliveryDetail";
 
 export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
         <CartProvider>
+        <ToastProvider>
           <Routes>
             <Route element={<PublicLayout />}>
               <Route index element={<Home />} />
@@ -25,9 +39,24 @@ export default function App() {
               <Route path="register" element={<Register />} />
               <Route path="orders" element={<Orders />} />
               <Route path="orders/:id" element={<OrderDetail />} />
-              <Route path="admin" element={<Dashboard />} />
+              <Route path="profile" element={<Profile />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="delivery" element={<DeliveryList />} />
+              <Route path="delivery/:id" element={<DeliveryDetail />} />
+            </Route>
+
+            <Route path="/admin" element={<AdminLayout />}>
+              <Route index element={<Dashboard />} />
+              <Route path="restaurants" element={<AdminRestaurants />} />
+              <Route path="restaurants/:id" element={<AdminRestaurantForm />} />
+              <Route path="orders" element={<AdminOrders />} />
+              <Route path="staff" element={<AdminStaff />} />
+              <Route path="reviews" element={<AdminReviews />} />
+              <Route path="complaints" element={<AdminComplaints />} />
+              <Route path="users" element={<AdminUsers />} />
             </Route>
           </Routes>
+        </ToastProvider>
         </CartProvider>
       </AuthProvider>
     </BrowserRouter>

@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const path = require("path");
 const errorHandler = require("./middleware/errorHandler");
 const authRoutes = require("./routes/auth");
 const categoryRoutes = require("./routes/categories");
@@ -10,6 +11,8 @@ const paymentRoutes = require("./routes/payments");
 const deliveryRoutes = require("./routes/deliveries");
 const reviewRoutes = require("./routes/reviews");
 const complaintRoutes = require("./routes/complaints");
+const uploadRoutes = require("./routes/upload");
+const userRoutes = require("./routes/users");
 const dashboardRoutes = require("./routes/dashboard");
 
 const app = express();
@@ -31,6 +34,9 @@ app.use("/api/payments", paymentRoutes);
 app.use("/api/deliveries", deliveryRoutes);
 app.use("/api/reviews", reviewRoutes);
 app.use("/api/complaints", complaintRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "..", "uploads")));
+app.use("/api/upload", uploadRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 
 app.use(errorHandler);

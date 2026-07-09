@@ -4,20 +4,22 @@
 
 ### Pre-requis
 - Node.js 18+
-- MongoDB (Docker)
+- MongoDB (Docker) sur port 27018
 
-### Lancer l'application
+### Installation
 
 ```bash
-# 1. Backend (port 3001)
+# Backend
 cd backend
 npm install
-npm run dev
+npx prisma generate
+npm run seed     # Remplir la base avec les données de démo
+npm run dev      # Serveur sur port 3001
 
-# 2. Frontend (port 5173)
+# Frontend (autre terminal)
 cd frontend
 npm install
-npm run dev
+npm run dev      # Serveur sur port 5173
 ```
 
 ### Variables d'environnement Backend (`.env`)
@@ -33,19 +35,19 @@ CORS_ORIGIN=http://localhost:5173
 
 ## Comptes Seed
 
+Exécuter `npm run seed` dans le dossier `backend/` pour initialiser la base.
+
 | Role | Telephone | Mot de passe |
 |---|---|---|
-| ADMIN (proprietaire) | `77 000 00 01` | `admin123` |
-| CLIENT | `77 000 00 02` | `admin123` |
-| LIVREUR | `77 000 00 03` | `admin123` |
-| GERANT Dakar Gourmet | `77 000 00 98` | `admin123` |
-| GERANT Chez Mama Africa | `77 000 00 99` | `admin123` |
+| ADMIN (proprietaire) | `770 000 00 01` | `admin123` |
+| CLIENT | `770 000 00 02` | `client123` |
+| LIVREUR | `770 000 00 03` | `livreur123` |
+| GERANT (Le Dakar Gourmet) | `770 000 00 98` | `gerant123` |
+| GERANT (Chez Mama Africa) | `770 000 00 99` | `gerant123` |
 
-Pour generer les 2 restaurants + menus de demo :
-```bash
-curl -X POST http://localhost:3001/api/restaurants/seed
-```
-Puis recreer les GERANTs via Admin > Personnel.
+Les numeros s'ecrivent aussi avec espaces (`770 000 00 01`) – le backend les normalise automatiquement.
+
+Données seed : 2 restaurants, 21 plats (7 catégories), 6 commandes à divers statuts, avis, réclamation, livraisons, paiements.
 
 ---
 
@@ -55,7 +57,7 @@ Puis recreer les GERANTs via Admin > Personnel.
 - Creation / Modification / Suppression de categories
 - Creation / Modification / Suppression de plats
 - Attribution a une categorie
-- Prix, description, image URL
+- Prix, description, image (upload fichier ou URL)
 
 ### Inventaire (`/admin/inventory`)
 - Stock en temps reel par plat
@@ -64,7 +66,7 @@ Puis recreer les GERANTs via Admin > Personnel.
 - Alerte stock bas <= 3
 
 ### Commandes (`/admin/orders`)
-- Filtre par statut
+- Filtre par statut (tabs)
 - Changement de statut (PENDING > CONFIRMED > PREPARING > READY > DELIVERED)
 - Assignation d'un livreur (modal avec selection + temps estime)
 - Affichage du livreur assigne dans la liste
@@ -72,15 +74,21 @@ Puis recreer les GERANTs via Admin > Personnel.
 ### Livraisons (`/admin/deliveries`)
 - Liste toutes les livraisons filtrees par restaurant (GERANT) ou toutes (ADMIN)
 - Filtre par statut (Assignee, Ramassee, En transit, Livree)
-- Lien vers le detail livraison
+- Cartes avec icône statut, infos restaurant/livreur/adresse
 
 ### Personnel (`/admin/staff`)
 - Creation de comptes ADMIN, GERANT, LIVREUR
 - Selection du restaurant pour le role GERANT
+- Sélecteur de rôle graphique avec icônes
 
 ### Utilisateurs (`/admin/users`)
-- Liste avec filtres par role (Administrateur, Gerant, Livreur, Client)
+- Liste avec filtres par role
+- Barre de recherche
 - Activation/desactivation de compte
+
+### Restaurants (`/admin/restaurants`)
+- Cartes grille avec avatar lettre, zones livraison
+- Edition detaillee avec categories + plats (AdminRestaurantForm)
 
 ---
 
@@ -140,13 +148,12 @@ npx jest --forceExit
 | POST | `/api/auth/register` | Inscription | - |
 | GET | `/api/auth/me` | Profil | Auth |
 | PATCH | `/api/auth/me` | Modifier profil | Auth |
-| POST | `/api/auth/register-staff` | Creer staff (ADMIN/GERANT/LIVREUR) | ADMIN |
+| POST | `/api/auth/register-staff` | Creer staff | ADMIN |
 | GET | `/api/restaurants` | Liste restaurants | - |
 | POST | `/api/restaurants` | Creer restaurant | ADMIN |
 | GET | `/api/restaurants/:id` | Detail restaurant | - |
 | PUT | `/api/restaurants/:id` | Modifier restaurant | ADMIN |
 | DELETE | `/api/restaurants/:id` | Supprimer restaurant | ADMIN |
-| POST | `/api/restaurants/seed` | Generer donnees seed | - |
 | GET | `/api/menu-items` | Liste plats | - |
 | POST | `/api/menu-items` | Creer plat | ADMIN/GERANT |
 | PUT | `/api/menu-items/:id` | Modifier plat | ADMIN/GERANT |
@@ -165,27 +172,63 @@ npx jest --forceExit
 | GET | `/api/deliveries/:id` | Detail livraison | Auth |
 | GET | `/api/deliveries/order/:orderId` | Livraison par commande | Auth |
 | POST | `/api/deliveries/assign` | Assigner livreur | ADMIN/GERANT |
-| PATCH | `/api/deliveries/:id/status` | Changer statut livraison | LIVREUR/ADMIN |
+| PATCH | `/api/deliveries/:id/status` | Changer statut | LIVREUR/ADMIN |
 | POST | `/api/reviews` | Creer avis | Auth |
+| GET | `/api/reviews/restaurant/:restaurantId` | Avis restaurant | - |
+| GET | `/api/reviews/pending` | Avis en attente | ADMIN/GERANT |
+| PATCH | `/api/reviews/:id/moderate` | Moderer avis | ADMIN/GERANT |
 | POST | `/api/complaints` | Creer reclamation | Auth |
+| GET | `/api/complaints` | Liste reclamations | ADMIN/GERANT |
+| PATCH | `/api/complaints/:id/status` | Traiter reclamation | ADMIN/GERANT |
 | GET | `/api/users` | Liste utilisateurs | ADMIN/GERANT |
 | PATCH | `/api/users/:id/toggle` | Activer/desactiver | ADMIN |
 | GET | `/api/dashboard/sales` | Ventes | ADMIN/GERANT |
 | GET | `/api/dashboard/top-items` | Top plats | ADMIN/GERANT |
 | GET | `/api/dashboard/cancellations` | Annulations | ADMIN/GERANT |
 | GET | `/api/dashboard/delivery-times` | Temps livraison | ADMIN/GERANT |
+| POST | `/api/upload` | Upload image | ADMIN/GERANT |
+| PATCH | `/api/menu-items/:id/toggle` | Toggle disponibilite | ADMIN/GERANT |
 
 ---
 
 ## Fonctionnalites
 
-- Dark mode : bouton lune/soleil en haut a droite
-- Responsive : menu hamburger mobile, sidebar overlay
-- Multi-restaurant : proprietaire (`ownerId`), filtre "Mes restaurants"
-- Roles : ADMIN, GERANT, LIVREUR, CLIENT
-- Gestion de stock et inventaire
-- Assignation de livreur aux commandes
-- Suivi de livraison en temps reel (socket.io)
-- Impression de facture
-- Avis et reclamations
-- Dashboard avec ventes, top plats, annulations
+- **Dark mode** : bouton lune/soleil, classe `.dark` sur `<html>`, CSS variables
+- **Responsive** : header hamburger mobile, sidebar overlay mobile (AdminLayout), tableaux scrollables
+- **Multi-restaurant** : proprietaire (`ownerId`), filtre par restaurant pour GERANT
+- **Roles** : ADMIN, GERANT, LIVREUR, CLIENT avec restrictions adaptées
+- **Gestion de stock** et inventaire temps réel
+- **Assignation de livreur** aux commandes
+- **Suivi de livraison** (socket.io)
+- **Impression de facture**
+- **Avis et reclamations** avec modération
+- **Dashboard** : ventes, top plats, annulations, temps livraison
+- **Login rapide** : boutons démo avec pré-remplissage des identifiants
+- **Design modernisé** : gradients, ombres, animations (fade-in, scale-in, shimmer), glassmorphism
+- **ImageUpload** : support upload fichier + saisie URL
+
+---
+
+## Architecture
+
+```
+restaurant-platform/
+├── backend/
+│   ├── prisma/          # Schéma + seed
+│   ├── src/
+│   │   ├── config/      # Prisma, multer upload
+│   │   ├── controllers/ # Logique métier
+│   │   ├── middleware/   # Auth, validation
+│   │   ├── routes/      # Express router
+│   │   └── app.js       # Configuration Express
+│   └── tests/           # Tests Jest + Supertest
+├── frontend/
+│   ├── src/
+│   │   ├── components/  # UI (Card, Button, Input, Badge, StatCard, Pagination, ThemeToggle, ImageUpload)
+│   │   ├── context/     # AuthContext, CartContext, SocketContext, ThemeContext, ToastContext
+│   │   ├── layouts/     # PublicLayout, AdminLayout
+│   │   ├── pages/       # Pages utilisateur + admin + livreur
+│   │   └── services/    # API client
+│   └── vite.config.js   # Proxy /api + /uploads vers backend
+└── docker-compose.yml   # MongoDB + backend + frontend + nginx
+```

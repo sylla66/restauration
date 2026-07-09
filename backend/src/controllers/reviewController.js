@@ -62,8 +62,12 @@ async function listByRestaurant(req, res, next) {
 
 async function listPending(req, res, next) {
   try {
+    const where = { moderationStatus: "PENDING" };
+    if (req.user?.role === "GERANT" && req.user.managedRestaurantId) {
+      where.order = { restaurantId: req.user.managedRestaurantId };
+    }
     const reviews = await prisma.review.findMany({
-      where: { moderationStatus: "PENDING" },
+      where,
       include: {
         user: { select: { id: true, name: true } },
         order: { select: { id: true, orderNumber: true, restaurantId: true } },

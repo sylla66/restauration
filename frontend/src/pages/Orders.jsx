@@ -4,24 +4,16 @@ import { orders } from "@/services/api";
 import { useAuth } from "@/context/AuthContext";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Clock, CheckCircle, XCircle, Truck } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Clock, CheckCircle, XCircle, Truck, ChefHat, Package, ListOrdered } from "lucide-react";
 
-const statusBadge = {
-  PENDING: { label: "En attente", class: "bg-yellow-100 text-yellow-800" },
-  CONFIRMED: { label: "Confirmée", class: "bg-blue-100 text-blue-800" },
-  PREPARING: { label: "En préparation", class: "bg-orange-100 text-orange-800" },
-  READY: { label: "Prête", class: "bg-purple-100 text-purple-800" },
-  DELIVERED: { label: "Livrée", class: "bg-green-100 text-green-800" },
-  CANCELLED: { label: "Annulée", class: "bg-red-100 text-red-800" },
-};
-
-const statusIcon = {
-  PENDING: Clock,
-  CONFIRMED: Clock,
-  PREPARING: Clock,
-  READY: CheckCircle,
-  DELIVERED: CheckCircle,
-  CANCELLED: XCircle,
+const statusMeta = {
+  PENDING: { label: "En attente", variant: "warning", icon: Clock },
+  CONFIRMED: { label: "Confirmée", variant: "info", icon: CheckCircle },
+  PREPARING: { label: "En préparation", variant: "warning", icon: ChefHat },
+  READY: { label: "Prête", variant: "info", icon: Package },
+  DELIVERED: { label: "Livrée", variant: "secondary", icon: CheckCircle },
+  CANCELLED: { label: "Annulée", variant: "danger", icon: XCircle },
 };
 
 export default function Orders() {
@@ -40,39 +32,52 @@ export default function Orders() {
     try {
       await orders.cancel(id);
       setList((prev) => prev.map((o) => (o.id === id ? { ...o, status: "CANCELLED" } : o)));
-    } catch (err) {
-      alert(err.message);
-    }
+    } catch (err) { alert(err.message); }
   }
 
-  if (loading) return <div className="text-center py-12 text-[var(--muted-foreground)]">Chargement...</div>;
+  if (loading) return <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-24 rounded-2xl animate-shimmer" />)}</div>;
 
   return (
-    <div className="overflow-x-auto">
-      <h1 className="text-2xl font-bold mb-6">Mes commandes</h1>
+    <div className="animate-fade-in">
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold flex items-center gap-2"><ListOrdered className="w-6 h-6 text-[var(--primary)]" /> Mes commandes</h1>
+        <Badge variant="primary" size="sm">{list.length} commande{list.length > 1 ? "s" : ""}</Badge>
+      </div>
+
       {list.length === 0 ? (
-        <p className="text-[var(--muted-foreground)] text-center py-12">Aucune commande</p>
+        <div className="text-center py-20">
+          <Package className="w-16 h-16 mx-auto text-[var(--muted-foreground)] mb-4" />
+          <h2 className="text-xl font-bold mb-2">Aucune commande</h2>
+          <p className="text-[var(--muted-foreground)] mb-6">Passez votre première commande dès maintenant</p>
+          <Button onClick={() => navigate("/menu")}>Voir le menu</Button>
+        </div>
       ) : (
-        <div className="space-y-4">
+        <div className="space-y-3">
           {list.map((order) => {
-            const Icon = statusIcon[order.status] || Clock;
-            const badge = statusBadge[order.status] || statusBadge.PENDING;
+            const m = statusMeta[order.status] || statusMeta.PENDING;
+            const Icon = m.icon;
             return (
-              <Card key={order.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/orders/${order.id}`)}>
+              <Card key={order.id} hover className="cursor-pointer" onClick={() => navigate(`/orders/${order.id}`)}>
                 <CardContent className="p-4">
-                  <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
-                    <div className="flex items-center gap-3">
-                      <Icon className="w-5 h-5 text-[var(--muted-foreground)]" />
-                      <div>
-                        <p className="font-medium">#{order.reference || order.id.slice(0, 8)}</p>
-                        <p className="text-sm text-[var(--muted-foreground)]">{new Date(order.createdAt).toLocaleDateString("fr-FR")}</p>
-                      </div>
+                  <div className="flex items-center gap-4">
+                    <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-white shrink-0 ${order.status === "DELIVERED" ? "bg-green-500" : order.status === "CANCELLED" ? "bg-red-500" : "bg-gradient-primary"}`}>
+                      <Icon className="w-6 h-6" />
                     </div>
-                    <div className="flex items-center gap-3">
-                      <span className={`text-xs font-medium px-2.5 py-1 rounded-full ${badge.class}`}>{badge.label}</span>
-                      <span className="font-bold text-[#e67e22]">{order.total.toLocaleString()} FCFA</span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <p className="font-bold text-sm">#{order.orderNumber || order.id.slice(0, 8)}</p>
+                        <Badge variant={m.variant} size="sm" dot>{m.label}</Badge>
+                      </div>
+                      <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
+                        {new Date(order.createdAt).toLocaleDateString("fr-FR", { weekday: "short", day: "numeric", month: "short" })}
+                        {order.restaurant?.name && ` • ${order.restaurant.name}`}
+                      </p>
+                      <p className="text-xs text-[var(--muted-foreground)]">{order.channel === "REMOTE" ? (order.subType === "DELIVERY" ? "Livraison" : "À emporter") : "Sur place"}</p>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <p className="font-extrabold text-[var(--primary)]">{order.total.toLocaleString()} FCFA</p>
                       {order.status === "PENDING" && (
-                        <Button variant="ghost" size="sm" className="text-red-500" onClick={(e) => { e.stopPropagation(); handleCancel(order.id); }}>
+                        <Button variant="ghost" size="sm" className="text-red-500 mt-1" onClick={(e) => { e.stopPropagation(); handleCancel(order.id); }}>
                           <XCircle className="w-4 h-4" />
                         </Button>
                       )}

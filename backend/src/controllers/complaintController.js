@@ -47,11 +47,14 @@ async function list(req, res, next) {
     if (req.user.role === "CLIENT") {
       where.userId = req.user.id;
     }
+    if (req.user?.role === "GERANT" && req.user.managedRestaurantId) {
+      where.order = { restaurantId: req.user.managedRestaurantId };
+    }
 
     const complaints = await prisma.complaint.findMany({
       where,
       include: {
-        order: { select: { id: true, orderNumber: true } },
+        order: { select: { id: true, orderNumber: true, restaurantId: true } },
         user: { select: { id: true, name: true, phone: true } },
       },
       orderBy: { createdAt: "desc" },

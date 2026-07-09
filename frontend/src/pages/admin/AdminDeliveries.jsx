@@ -1,27 +1,19 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/context/AuthContext";
 import { deliveries } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Bike, MapPin, ChevronRight } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Bike, MapPin, User, Clock, ArrowRight, Package, CheckCircle } from "lucide-react";
 
-const statusLabels = {
-  assigned: "Assignée",
-  picked_up: "Ramassée",
-  in_transit: "En transit",
-  delivered: "Livrée",
-};
-
-const statusColors = {
-  assigned: "bg-yellow-100 text-yellow-800",
-  picked_up: "bg-blue-100 text-blue-800",
-  in_transit: "bg-orange-100 text-orange-800",
-  delivered: "bg-green-100 text-green-800",
+const statusMeta = {
+  assigned: { label: "Assignée", variant: "warning", icon: Clock },
+  picked_up: { label: "Ramassée", variant: "info", icon: Package },
+  in_transit: { label: "En transit", variant: "warning", icon: Bike },
+  delivered: { label: "Livrée", variant: "secondary", icon: CheckCircle },
 };
 
 export default function AdminDeliveries() {
-  const { user } = useAuth();
   const navigate = useNavigate();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,45 +26,49 @@ export default function AdminDeliveries() {
   const filtered = filter ? list.filter((d) => d.status === filter) : list;
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-6 flex items-center gap-2"><Bike className="w-5 h-5" /> Livraisons</h1>
+    <div className="animate-fade-in">
+      <div className="flex items-center gap-3 mb-6">
+        <h1 className="text-2xl font-bold flex items-center gap-2"><Bike className="w-6 h-6 text-[var(--primary)]" /> Livraisons</h1>
+        <Badge variant="primary" size="sm">{list.length} livraison{list.length > 1 ? "s" : ""}</Badge>
+      </div>
 
-      <div className="flex gap-2 mb-6 overflow-x-auto pb-2 flex-wrap">
-        <button onClick={() => setFilter("")} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${!filter ? "bg-[#e67e22] text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}>Toutes</button>
-        {Object.keys(statusLabels).map((s) => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${filter === s ? "bg-[#e67e22] text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}>{statusLabels[s]}</button>
+      <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
+        {[{ value: "", label: "Toutes" }, ...Object.entries(statusMeta).map(([k, v]) => ({ value: k, label: v.label }))].map((r) => (
+          <button key={r.value} onClick={() => setFilter(r.value)} className={`px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-all ${filter === r.value ? "bg-gradient-primary text-white shadow-md" : "bg-[var(--card)] border border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--primary)]/30"}`}>{r.label}</button>
         ))}
       </div>
 
       {loading ? (
-        <p className="text-[var(--muted-foreground)] text-center py-12">Chargement...</p>
+        <div className="space-y-3">{[1, 2, 3].map((i) => <div key={i} className="h-28 rounded-2xl animate-shimmer" />)}</div>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="p-12 text-center text-[var(--muted-foreground)]">
-          <Bike className="w-12 h-12 mx-auto mb-3" />
-          <p>Aucune livraison</p>
-        </CardContent></Card>
+        <div className="text-center py-16"><Bike className="w-16 h-16 mx-auto text-[var(--muted-foreground)] mb-4" /><p className="font-semibold">Aucune livraison</p></div>
       ) : (
-        <div className="space-y-3">
-          {filtered.map((d) => (
-            <Card key={d.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/delivery/${d.id}`)}>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-center">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-medium">#{d.order?.orderNumber || d.orderId?.slice(0, 8)}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[d.status]}`}>{statusLabels[d.status]}</span>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((d) => {
+            const m = statusMeta[d.status] || statusMeta.assigned;
+            const Icon = m.icon;
+            return (
+              <Card key={d.id} hover className="cursor-pointer" onClick={() => navigate(`/delivery/${d.id}`)}>
+                <CardContent className="p-4">
+                  <div className="flex items-center gap-3 mb-3">
+                    <div className={`w-10 h-10 rounded-xl flex items-center justify-center text-white ${d.status === "delivered" ? "bg-green-500" : "bg-gradient-primary"}`}>
+                      <Icon className="w-5 h-5" />
                     </div>
-                    <div className="text-sm text-[var(--muted-foreground)] space-y-0.5">
-                      {d.order?.restaurant && <p className="flex items-center gap-1"><MapPin className="w-3 h-3" /> {d.order.restaurant.name}</p>}
-                      {d.deliveryPerson && <p className="text-xs">Livreur : {d.deliveryPerson.name}</p>}
-                      {d.order?.deliveryAddress && <p className="text-xs">→ {d.order.deliveryAddress}</p>}
+                    <div className="flex-1 min-w-0">
+                      <p className="font-bold text-sm">#{d.order?.orderNumber || d.orderId?.slice(0, 8)}</p>
+                      <Badge variant={m.variant} size="sm" dot>{m.label}</Badge>
                     </div>
+                    <ArrowRight className="w-4 h-4 text-[var(--muted-foreground)] shrink-0" />
                   </div>
-                  <ChevronRight className="w-4 h-4 text-[var(--muted-foreground)] shrink-0" />
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                  <div className="space-y-1.5 text-xs text-[var(--muted-foreground)]">
+                    {d.order?.restaurant && <p className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {d.order.restaurant.name}</p>}
+                    {d.deliveryPerson && <p className="flex items-center gap-1.5"><User className="w-3 h-3" /> {d.deliveryPerson.name}</p>}
+                    {d.order?.deliveryAddress && <p className="flex items-center gap-1.5"><MapPin className="w-3 h-3" /> {d.order.deliveryAddress}</p>}
+                  </div>
+                </CardContent>
+              </Card>
+            );
+          })}
         </div>
       )}
     </div>

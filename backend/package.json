@@ -11,7 +11,11 @@
     "prisma:migrate": "prisma migrate dev",
     "prisma:push": "prisma db push",
     "prisma:studio": "prisma studio",
+    "seed": "node prisma/seed.js",
     "test": "jest --passWithNoTests"
+  },
+  "prisma": {
+    "seed": "node prisma/seed.js"
   },
   "keywords": [
     "restaurant",

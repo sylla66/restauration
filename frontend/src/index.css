@@ -6,29 +6,62 @@
   :root {
     --primary: #e67e22;
     --primary-hover: #d35400;
+    --primary-light: #fef3e7;
     --secondary: #2ecc71;
     --secondary-hover: #27ae60;
-    --background: #ffffff;
+    --secondary-light: #e8faf0;
+    --background: #fafafa;
     --foreground: #1a1a2e;
-    --muted: #f5f5f5;
+    --muted: #f0f0f5;
     --muted-foreground: #6b7280;
     --border: #e5e7eb;
-    --radius: 0.5rem;
+    --card: #ffffff;
+    --card-hover: #f9fafb;
+    --radius: 0.75rem;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+    --gradient-primary: linear-gradient(135deg, #e67e22, #f39c12);
+    --gradient-secondary: linear-gradient(135deg, #2ecc71, #27ae60);
+    --gradient-dark: linear-gradient(135deg, #1a1a2e, #2d2d5e);
   }
 
   .dark {
-    --background: #0f0f23;
+    --background: #0a0a1a;
     --foreground: #f0f0f5;
     --muted: #1a1a3e;
     --muted-foreground: #9ca3af;
     --border: #2d2d5e;
+    --card: #12122a;
+    --card-hover: #1a1a3e;
+    --primary-light: #1a0e00;
+    --secondary-light: #002010;
+    --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.3);
+    --shadow: 0 1px 3px 0 rgb(0 0 0 / 0.4);
+    --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.4);
+    --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.4);
+    --gradient-dark: linear-gradient(135deg, #0a0a1a, #1a1a3e);
   }
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--border) transparent;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
-  transition: background-color 0.2s, color 0.2s;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+.bg-gradient-primary {
+  background-image: linear-gradient(135deg, #e67e22, #f39c12) !important;
+}
+.bg-gradient-secondary {
+  background-image: linear-gradient(135deg, #2ecc71, #27ae60) !important;
 }
 
 @keyframes slide-up {
@@ -36,6 +69,52 @@ body {
   to { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes fade-in {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes scale-in {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes pulse-dot {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.4; }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
 .animate-slide-up {
   animation: slide-up 0.3s ease-out;
+}
+
+.animate-fade-in {
+  animation: fade-in 0.4s ease-out;
+}
+
+.animate-scale-in {
+  animation: scale-in 0.3s ease-out;
+}
+
+.animate-shimmer {
+  background: linear-gradient(90deg, var(--muted) 25%, var(--border) 50%, var(--muted) 75%);
+  background-size: 200% 100%;
+  animation: shimmer 1.5s infinite;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.dark .glass {
+  background: rgba(18, 18, 42, 0.7);
+  border: 1px solid rgba(255, 255, 255, 0.05);
 }

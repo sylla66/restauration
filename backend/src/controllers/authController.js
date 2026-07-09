@@ -4,7 +4,8 @@ const { generateToken } = require("../middleware/auth");
 
 async function register(req, res, next) {
   try {
-    const { name, email, phone, password } = req.body;
+    const { name, email, password } = req.body;
+    const phone = req.body.phone?.replace(/[\s-]/g, "");
 
     const existing = await prisma.user.findFirst({
       where: {
@@ -32,7 +33,8 @@ async function register(req, res, next) {
 
 async function login(req, res, next) {
   try {
-    const { email, phone, password } = req.body;
+    const { email, password } = req.body;
+    const phone = req.body.phone?.replace(/[\s-]/g, "");
 
     const user = await prisma.user.findFirst({
       where: {

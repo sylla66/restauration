@@ -72,8 +72,7 @@ function authorize(...roles) {
 
 function restrictToOwnRestaurant(req, res, next) {
   if (req.user.role === "GERANT") {
-    const paramId = req.params.id || req.params.restaurantId || req.body?.restaurantId;
-    if (paramId && paramId !== req.user.managedRestaurantId) {
+    if (req.body?.restaurantId && req.body.restaurantId !== req.user.managedRestaurantId) {
       return res.status(403).json({ error: "Accès refusé : vous ne gérez pas ce restaurant" });
     }
     req.restaurantId = req.user.managedRestaurantId;

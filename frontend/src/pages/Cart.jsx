@@ -41,7 +41,7 @@ export default function Cart() {
       let res;
       if (channel === "delivery") {
         if (!deliveryAddress.trim()) { setSubmitting(false); toast("Adresse de livraison requise.", "error"); return; }
-        res = await orders.createRemote({ ...body, deliveryAddress: deliveryAddress.trim() });
+        res = await orders.createRemote({ ...body, subType: "DELIVERY", deliveryAddress: deliveryAddress.trim() });
       } else {
         res = await orders.createOnSite(body);
       }
@@ -71,18 +71,18 @@ export default function Cart() {
 
   return (
     <div className="max-w-2xl mx-auto">
-      <div className="flex items-center gap-4 mb-6">
-        <Link to="/menu"><ArrowLeft className="w-5 h-5 text-gray-500" /></Link>
+      <div className="flex flex-col sm:flex-row items-center gap-4 mb-6">
+        <Link to="/menu"><ArrowLeft className="w-5 h-5 text-[var(--muted-foreground)]" /></Link>
         <h1 className="text-xl font-bold">Votre panier</h1>
       </div>
 
       <div className="space-y-3 mb-6">
         {items.map((item) => (
           <Card key={item.menuItemId}>
-            <CardContent className="p-4 flex items-center justify-between">
+            <CardContent className="p-4 flex flex-col sm:flex-row items-start sm:items-center justify-between">
               <div className="flex-1">
                 <h3 className="font-medium">{item.name}</h3>
-                <p className="text-sm text-gray-500">{(item.price * item.quantity).toLocaleString()} FCFA</p>
+                <p className="text-sm text-[var(--muted-foreground)]">{(item.price * item.quantity).toLocaleString()} FCFA</p>
               </div>
               <div className="flex items-center gap-3">
                 <button onClick={() => updateQuantity(item.menuItemId, item.quantity - 1)} className="w-7 h-7 rounded-full border flex items-center justify-center">
@@ -105,11 +105,11 @@ export default function Cart() {
         <CardContent className="p-4 space-y-4">
           <div>
             <Label>Type de commande</Label>
-            <div className="grid grid-cols-2 gap-3 mt-1">
-              <button onClick={() => setChannel("on-site")} className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${channel === "on-site" ? "border-[#e67e22] bg-orange-50 text-[#e67e22]" : "border-gray-200 hover:border-gray-300"}`}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mt-1">
+              <button onClick={() => setChannel("on-site")} className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${channel === "on-site" ? "border-[#e67e22] bg-orange-50 text-[#e67e22]" : "border-[var(--border)] hover:border-gray-300"}`}>
                 <Store className="w-4 h-4" /> Sur place
               </button>
-              <button onClick={() => setChannel("delivery")} className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${channel === "delivery" ? "border-[#e67e22] bg-orange-50 text-[#e67e22]" : "border-gray-200 hover:border-gray-300"}`}>
+              <button onClick={() => setChannel("delivery")} className={`flex items-center gap-2 p-3 rounded-lg border text-sm font-medium transition-colors ${channel === "delivery" ? "border-[#e67e22] bg-orange-50 text-[#e67e22]" : "border-[var(--border)] hover:border-gray-300"}`}>
                 <Bike className="w-4 h-4" /> Livraison
               </button>
             </div>
@@ -136,7 +136,7 @@ export default function Cart() {
         </CardContent>
       </Card>
 
-      <div className="bg-white rounded-xl border border-gray-200 p-4">
+      <div className="bg-white rounded-xl border border-[var(--border)] p-4">
         <div className="flex justify-between text-lg font-bold mb-4">
           <span>Total</span>
           <span className="text-[#e67e22]">{total.toLocaleString()} FCFA</span>

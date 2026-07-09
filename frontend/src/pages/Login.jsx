@@ -28,7 +28,7 @@ export default function Login() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-12">
+    <div className="max-w-md mx-auto mt-12 px-4">
       <Card>
         <CardHeader>
           <CardTitle>Connexion</CardTitle>
@@ -46,7 +46,7 @@ export default function Login() {
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">Se connecter</Button>
           </form>
-          <p className="text-sm text-center mt-4 text-gray-500">
+          <p className="text-sm text-center mt-4 text-[var(--muted-foreground)]">
             Pas de compte ? <Link to="/register" className="text-[#e67e22] hover:underline">S'inscrire</Link>
           </p>
         </CardContent>

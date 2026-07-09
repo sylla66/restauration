@@ -2,11 +2,11 @@ const { Router } = require("express");
 const { list, getById, create, update, seed, remove } = require("../controllers/restaurantController");
 const { restaurantRules } = require("../validators/restaurant");
 const validate = require("../middleware/validate");
-const { authenticate, authorize } = require("../middleware/auth");
+const { authenticate, authorize, optionalAuth } = require("../middleware/auth");
 
 const router = Router();
 
-router.get("/", list);
+router.get("/", optionalAuth, list);
 router.get("/:id", getById);
 router.post("/", authenticate, authorize("ADMIN"), restaurantRules, validate, create);
 router.post("/seed", seed);

@@ -34,7 +34,7 @@ export default function ImageUpload({ value, onChange, folder }) {
           </button>
         </div>
       ) : (
-        <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} className="w-24 h-24 border-2 border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center text-gray-400 hover:border-[#e67e22] hover:text-[#e67e22] transition-colors">
+        <button type="button" onClick={() => inputRef.current?.click()} disabled={uploading} className="w-24 h-24 border-2 border-dashed border-[var(--border)] rounded-lg flex flex-col items-center justify-center text-[var(--muted-foreground)] hover:border-[#e67e22] hover:text-[#e67e22] transition-colors">
           {uploading ? (
             <span className="text-xs">Envoi...</span>
           ) : (

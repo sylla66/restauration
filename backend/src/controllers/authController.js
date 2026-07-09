@@ -55,8 +55,10 @@ async function login(req, res, next) {
 
     const token = generateToken(user);
 
+    const managedRestaurant = user.managedRestaurantId ? await prisma.restaurant.findUnique({ where: { id: user.managedRestaurantId }, select: { id: true, name: true } }) : null;
+
     res.json({
-      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role },
+      user: { id: user.id, name: user.name, email: user.email, phone: user.phone, role: user.role, managedRestaurant: managedRestaurant || undefined },
       token,
     });
   } catch (err) {
@@ -68,14 +70,16 @@ async function getMe(req, res, next) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, createdAt: true },
+      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, createdAt: true, managedRestaurantId: true },
     });
 
     if (!user) {
       return res.status(404).json({ error: "Utilisateur introuvable" });
     }
 
-    res.json({ user });
+    const managedRestaurant = user.managedRestaurantId ? await prisma.restaurant.findUnique({ where: { id: user.managedRestaurantId }, select: { id: true, name: true } }) : null;
+
+    res.json({ user: { ...user, managedRestaurant: managedRestaurant || undefined } });
   } catch (err) {
     next(err);
   }
@@ -83,29 +87,39 @@ async function getMe(req, res, next) {
 
 async function registerStaff(req, res, next) {
   try {
-    const { name, email, phone, password, role } = req.body;
+    const { name, email, phone, password, role, restaurantId } = req.body;
 
-    if (!["LIVREUR", "GERANT"].includes(role)) {
-      return res.status(400).json({ error: "Rôle invalide. Utilisez LIVREUR ou GERANT" });
+    if (!["LIVREUR", "GERANT", "ADMIN"].includes(role)) {
+      return res.status(400).json({ error: "Rôle invalide. Utilisez LIVREUR, GERANT ou ADMIN" });
     }
 
-    const existing = await prisma.user.findFirst({
-      where: {
-        OR: [{ email }, { phone }].filter((c) => c.email || c.phone),
-      },
-    });
-    if (existing) {
-      return res.status(409).json({ error: "Cet email ou téléphone est déjà utilisé" });
+    if (role === "GERANT" && !restaurantId) {
+      return res.status(400).json({ error: "Un restaurant est requis pour le rôle GERANT" });
     }
 
     const passwordHash = await bcrypt.hash(password, 10);
 
-    const user = await prisma.user.create({
-      data: { name, email, phone, passwordHash, role },
-      select: { id: true, name: true, email: true, phone: true, role: true },
+    const user = await prisma.user.upsert({
+      where: { phone },
+      create: {
+        name,
+        email,
+        phone,
+        passwordHash,
+        role,
+        ...(role === "GERANT" ? { managedRestaurantId: restaurantId } : {}),
+      },
+      update: {
+        name,
+        email,
+        passwordHash,
+        role,
+        ...(role === "GERANT" ? { managedRestaurantId: restaurantId } : {}),
+      },
+      select: { id: true, name: true, email: true, phone: true, role: true, managedRestaurantId: true },
     });
 
-    res.status(201).json({ user });
+    res.status(200).json({ user });
   } catch (err) {
     next(err);
   }

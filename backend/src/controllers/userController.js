@@ -2,17 +2,31 @@ const prisma = require("../config/prisma");
 
 async function list(req, res, next) {
   try {
-    const { role } = req.query;
+    const { role, search, page, limit } = req.query;
     const where = {};
     if (role) where.role = role;
+    if (search) {
+      where.OR = [
+        { name: { contains: search, mode: "insensitive" } },
+        { phone: { contains: search } },
+      ];
+    }
 
-    const users = await prisma.user.findMany({
-      where,
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, createdAt: true },
-      orderBy: { createdAt: "desc" },
-    });
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(limit) || 20));
 
-    res.json({ users });
+    const [users, total] = await Promise.all([
+      prisma.user.findMany({
+        where,
+        select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, createdAt: true },
+        orderBy: { createdAt: "desc" },
+        skip: (pageNum - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.user.count({ where }),
+    ]);
+
+    res.json({ users, total, page: pageNum, totalPages: Math.ceil(total / pageSize) });
   } catch (err) {
     next(err);
   }

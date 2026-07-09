@@ -3,8 +3,8 @@ import { cn } from "@/lib/utils";
 const variants = {
   default: "bg-[#e67e22] text-white hover:bg-[#d35400]",
   secondary: "bg-[#2ecc71] text-white hover:bg-[#27ae60]",
-  outline: "border border-gray-300 bg-white hover:bg-gray-50",
-  ghost: "hover:bg-gray-100",
+  outline: "border border-[var(--border)] bg-[var(--background)] hover:bg-[var(--muted)]",
+  ghost: "hover:bg-[var(--muted)]",
   danger: "bg-red-500 text-white hover:bg-red-600",
 };
 

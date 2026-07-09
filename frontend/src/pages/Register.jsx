@@ -31,7 +31,7 @@ export default function Register() {
   }
 
   return (
-    <div className="max-w-md mx-auto mt-12">
+    <div className="max-w-md mx-auto mt-12 px-4">
       <Card>
         <CardHeader>
           <CardTitle>Créer un compte</CardTitle>
@@ -53,7 +53,7 @@ export default function Register() {
             {error && <p className="text-red-500 text-sm">{error}</p>}
             <Button type="submit" className="w-full">S'inscrire</Button>
           </form>
-          <p className="text-sm text-center mt-4 text-gray-500">
+          <p className="text-sm text-center mt-4 text-[var(--muted-foreground)]">
             Déjà un compte ? <Link to="/login" className="text-[#e67e22] hover:underline">Se connecter</Link>
           </p>
         </CardContent>

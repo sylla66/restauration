@@ -13,10 +13,10 @@ export default function Home() {
   return (
     <div>
       <section className="text-center py-16">
-        <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+        <h1 className="text-4xl md:text-5xl font-bold text-[var(--foreground)] mb-4">
           Bienvenue chez <span className="text-[#e67e22]">Dakar Gourmet</span>
         </h1>
-        <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
+        <p className="text-lg text-[var(--muted-foreground)] mb-8 max-w-2xl mx-auto">
           Découvrez les saveurs authentiques du Sénégal, commandez en ligne et dégustez chez vous.
         </p>
         <div className="flex gap-4 justify-center">
@@ -27,10 +27,10 @@ export default function Home() {
 
       <section className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 py-12">
         {features.map((f) => (
-          <div key={f.title} className="bg-white p-6 rounded-xl border border-gray-200 text-center">
+          <div key={f.title} className="bg-[var(--background)] p-6 rounded-xl border border-[var(--border)] text-center">
             <f.icon className="w-10 h-10 text-[#e67e22] mx-auto mb-3" />
             <h3 className="font-semibold mb-2">{f.title}</h3>
-            <p className="text-sm text-gray-500">{f.desc}</p>
+            <p className="text-sm text-[var(--muted-foreground)]">{f.desc}</p>
           </div>
         ))}
       </section>

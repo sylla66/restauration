@@ -28,9 +28,9 @@ export default function Profile() {
     <div className="max-w-3xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Mon profil</h1>
 
-      <div className="flex gap-4 mb-6 border-b border-gray-200 pb-2">
-        <button onClick={() => setTab("infos")} className={`pb-2 text-sm font-medium border-b-2 transition-colors ${tab === "infos" ? "border-[#e67e22] text-[#e67e22]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>Informations</button>
-        <button onClick={() => setTab("orders")} className={`pb-2 text-sm font-medium border-b-2 transition-colors ${tab === "orders" ? "border-[#e67e22] text-[#e67e22]" : "border-transparent text-gray-500 hover:text-gray-700"}`}>Commandes</button>
+      <div className="flex gap-4 mb-6 border-b border-[var(--border)] pb-2">
+        <button onClick={() => setTab("infos")} className={`pb-2 text-sm font-medium border-b-2 transition-colors ${tab === "infos" ? "border-[#e67e22] text-[#e67e22]" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"}`}>Informations</button>
+        <button onClick={() => setTab("orders")} className={`pb-2 text-sm font-medium border-b-2 transition-colors ${tab === "orders" ? "border-[#e67e22] text-[#e67e22]" : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"}`}>Commandes</button>
       </div>
 
       {tab === "infos" ? <ProfileInfo user={user} /> : <OrderHistory />}
@@ -85,8 +85,8 @@ function ProfileInfo({ user }) {
             <Input value={form.email} onChange={(e) => setForm({ ...form, email: e.target.value })} type="email" placeholder="email@exemple.com" />
           </div>
 
-          <hr className="border-gray-200" />
-          <p className="text-sm text-gray-500">Changer de mot de passe (optionnel)</p>
+          <hr className="border-[var(--border)]" />
+          <p className="text-sm text-[var(--muted-foreground)]">Changer de mot de passe (optionnel)</p>
 
           <div>
             <Label>Mot de passe actuel</Label>
@@ -116,10 +116,10 @@ function OrderHistory() {
     orders.list({}).then((res) => setList(res.orders || [])).finally(() => setLoading(false));
   }, [user]);
 
-  if (loading) return <p className="text-gray-500 text-center py-8">Chargement...</p>;
+  if (loading) return <p className="text-[var(--muted-foreground)] text-center py-8">Chargement...</p>;
 
   if (list.length === 0) return (
-    <Card><CardContent className="p-8 text-center text-gray-500">Aucune commande pour le moment</CardContent></Card>
+    <Card><CardContent className="p-8 text-center text-[var(--muted-foreground)]">Aucune commande pour le moment</CardContent></Card>
   );
 
   return (
@@ -128,14 +128,14 @@ function OrderHistory() {
         <Card key={order.id} className="cursor-pointer hover:shadow-md transition-shadow" onClick={() => navigate(`/orders/${order.id}`)}>
           <CardContent className="p-4 flex justify-between items-center">
             <div className="flex items-center gap-3">
-              <Clock className="w-4 h-4 text-gray-400" />
+              <Clock className="w-4 h-4 text-[var(--muted-foreground)]" />
               <div>
                 <p className="font-medium">#{order.orderNumber || order.id.slice(0, 8)}</p>
-                <p className="text-xs text-gray-500">{new Date(order.createdAt).toLocaleDateString("fr-FR")}</p>
+                <p className="text-xs text-[var(--muted-foreground)]">{new Date(order.createdAt).toLocaleDateString("fr-FR")}</p>
               </div>
             </div>
             <div className="flex items-center gap-3">
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusBadge[order.status] || "bg-gray-100"}`}>{order.status}</span>
+              <span className={`text-xs font-medium px-2 py-1 rounded-full ${statusBadge[order.status] || "bg-[var(--muted)]"}`}>{order.status}</span>
               <span className="font-bold text-[#e67e22] text-sm">{order.total} FCFA</span>
             </div>
           </CardContent>

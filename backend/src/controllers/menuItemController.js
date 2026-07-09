@@ -35,7 +35,8 @@ async function getById(req, res, next) {
 
 async function create(req, res, next) {
   try {
-    const { name, description, price, image, stock, categoryId, restaurantId } = req.body;
+    const { name, description, price, image, stock, categoryId } = req.body;
+    const restaurantId = req.restaurantId || req.body.restaurantId;
     const item = await prisma.menuItem.create({
       data: { name, description, price, image, stock, categoryId, restaurantId },
       include: { category: { select: { id: true, name: true } } },
@@ -49,6 +50,11 @@ async function create(req, res, next) {
 async function update(req, res, next) {
   try {
     const { name, description, price, image, stock, categoryId } = req.body;
+    const existing = await prisma.menuItem.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: "Plat introuvable" });
+    if (req.user.role === "GERANT" && existing.restaurantId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé" });
+    }
     const item = await prisma.menuItem.update({
       where: { id: req.params.id },
       data: { name, description, price, image, stock, categoryId },
@@ -63,8 +69,9 @@ async function update(req, res, next) {
 async function toggleAvailability(req, res, next) {
   try {
     const existing = await prisma.menuItem.findUnique({ where: { id: req.params.id } });
-    if (!existing) {
-      return res.status(404).json({ error: "Plat introuvable" });
+    if (!existing) return res.status(404).json({ error: "Plat introuvable" });
+    if (req.user.role === "GERANT" && existing.restaurantId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé" });
     }
     const item = await prisma.menuItem.update({
       where: { id: req.params.id },
@@ -79,6 +86,11 @@ async function toggleAvailability(req, res, next) {
 
 async function remove(req, res, next) {
   try {
+    const existing = await prisma.menuItem.findUnique({ where: { id: req.params.id } });
+    if (!existing) return res.status(404).json({ error: "Plat introuvable" });
+    if (req.user.role === "GERANT" && existing.restaurantId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé" });
+    }
     await prisma.menuItem.delete({ where: { id: req.params.id } });
     res.json({ message: "Plat supprimé" });
   } catch (err) {

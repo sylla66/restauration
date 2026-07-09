@@ -10,7 +10,7 @@ const statusColors = {
   OPEN: "bg-red-100 text-red-800",
   DISPUTED: "bg-orange-100 text-orange-800",
   RESOLVED: "bg-green-100 text-green-800",
-  DISMISSED: "bg-gray-100 text-gray-800",
+  DISMISSED: "bg-[var(--muted)] text-[var(--foreground)]",
 };
 
 export default function AdminComplaints() {
@@ -54,21 +54,21 @@ export default function AdminComplaints() {
       <h1 className="text-2xl font-bold mb-6">Gestion des réclamations</h1>
 
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        <button onClick={() => setFilter("")} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${!filter ? "bg-[#e67e22] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Toutes</button>
+        <button onClick={() => setFilter("")} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${!filter ? "bg-[#e67e22] text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}>Toutes</button>
         {["OPEN", "DISPUTED", "RESOLVED", "DISMISSED"].map((s) => (
-          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${filter === s ? "bg-[#e67e22] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{s}</button>
+          <button key={s} onClick={() => setFilter(s)} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${filter === s ? "bg-[#e67e22] text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}>{s}</button>
         ))}
       </div>
 
       {loading ? (
-        <p className="text-gray-500 text-center py-12">Chargement...</p>
+        <p className="text-[var(--muted-foreground)] text-center py-12">Chargement...</p>
       ) : filtered.length === 0 ? (
-        <Card><CardContent className="p-12 text-center text-gray-500">
+        <Card><CardContent className="p-12 text-center text-[var(--muted-foreground)]">
           <AlertTriangle className="w-12 h-12 mx-auto text-gray-300 mb-3" />
           <p>Aucune réclamation</p>
         </CardContent></Card>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-3 overflow-x-auto">
           {filtered.map((c) => (
             <Card key={c.id}>
               <CardContent className="p-4">
@@ -76,15 +76,15 @@ export default function AdminComplaints() {
                   <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
                       <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${statusColors[c.status]}`}>{c.status}</span>
-                      <span className="text-xs text-gray-400">{new Date(c.createdAt).toLocaleDateString("fr-FR")}</span>
+                      <span className="text-xs text-[var(--muted-foreground)]">{new Date(c.createdAt).toLocaleDateString("fr-FR")}</span>
                     </div>
                     <p className="font-medium text-sm">{c.reason}</p>
-                    {c.description && <p className="text-sm text-gray-500 mt-1">{c.description}</p>}
-                    <div className="flex gap-4 mt-1 text-xs text-gray-400">
+                    {c.description && <p className="text-sm text-[var(--muted-foreground)] mt-1">{c.description}</p>}
+                    <div className="flex gap-4 mt-1 text-xs text-[var(--muted-foreground)]">
                       <span>Par {c.user?.name || "Anonyme"}</span>
                       <span>Commande #{c.order?.orderNumber || c.orderId?.slice(0, 8)}</span>
                     </div>
-                    {c.resolution && <p className="text-sm text-gray-600 mt-2 bg-green-50 p-2 rounded">Résolution : {c.resolution}</p>}
+                    {c.resolution && <p className="text-sm text-[var(--muted-foreground)] mt-2 bg-green-50 p-2 rounded">Résolution : {c.resolution}</p>}
                   </div>
 
                   <div className="ml-4 shrink-0">
@@ -101,7 +101,7 @@ export default function AdminComplaints() {
                           <Button size="sm" variant="outline" onClick={() => handleStatus(c.id, "DISMISSED")}>
                             <X className="w-3 h-3" /> Rejeter
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={() => setResolving(null)} className="text-gray-400">Annuler</Button>
+                          <Button size="sm" variant="ghost" onClick={() => setResolving(null)} className="text-[var(--muted-foreground)]">Annuler</Button>
                         </div>
                       </div>
                     ) : (c.status === "OPEN" || c.status === "DISPUTED") && (

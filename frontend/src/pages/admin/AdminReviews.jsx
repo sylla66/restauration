@@ -37,12 +37,12 @@ export default function AdminReviews() {
     <div>
       <h1 className="text-2xl font-bold mb-6">Modération des avis</h1>
 
-      <div className="space-y-3">
+      <div className="space-y-3 overflow-x-auto">
         {loading ? (
-          <p className="text-gray-500 text-center py-12">Chargement...</p>
+          <p className="text-[var(--muted-foreground)] text-center py-12">Chargement...</p>
         ) : list.length === 0 ? (
-          <Card><CardContent className="p-12 text-center text-gray-500">
-            <MessageSquare className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+          <Card><CardContent className="p-12 text-center text-[var(--muted-foreground)]">
+            <MessageSquare className="w-12 h-12 mx-auto text-[var(--muted-foreground)] mb-3" />
             <p>Aucun avis en attente de modération</p>
           </CardContent></Card>
         ) : (
@@ -55,13 +55,13 @@ export default function AdminReviews() {
                       <span className="font-medium">{review.user?.name || "Anonyme"}</span>
                       <div className="flex gap-0.5">
                         {[1, 2, 3, 4, 5].map((s) => (
-                          <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "text-[#e67e22] fill-current" : "text-gray-300"}`} />
+                          <Star key={s} className={`w-3 h-3 ${s <= review.rating ? "text-[#e67e22] fill-current" : "text-[var(--muted-foreground)]"}`} />
                         ))}
                       </div>
-                      <span className="text-xs text-gray-400">{new Date(review.createdAt).toLocaleDateString("fr-FR")}</span>
+                      <span className="text-xs text-[var(--muted-foreground)]">{new Date(review.createdAt).toLocaleDateString("fr-FR")}</span>
                     </div>
                     <p className="text-sm">"{review.comment}"</p>
-                    <p className="text-xs text-gray-400 mt-1">Commande #{review.order?.orderNumber || review.orderId?.slice(0, 8)}</p>
+                    <p className="text-xs text-[var(--muted-foreground)] mt-1">Commande #{review.order?.orderNumber || review.orderId?.slice(0, 8)}</p>
                   </div>
                   <div className="flex gap-2 ml-4">
                     <Button size="sm" variant="secondary" onClick={() => handleModerate(review.id, "APPROVED")}>

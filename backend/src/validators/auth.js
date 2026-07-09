@@ -28,8 +28,8 @@ const registerStaffRules = [
     .isLength({ min: 6 })
     .withMessage("Le mot de passe doit contenir au moins 6 caractères"),
   body("role")
-    .isIn(["LIVREUR", "GERANT"])
-    .withMessage("Rôle doit être LIVREUR ou GERANT"),
+    .isIn(["LIVREUR", "GERANT", "ADMIN"])
+    .withMessage("Rôle doit être LIVREUR, GERANT ou ADMIN"),
 ];
 
 const updateProfileRules = [

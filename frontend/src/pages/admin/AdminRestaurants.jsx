@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useToast } from "@/context/ToastContext";
+import { useAuth } from "@/context/AuthContext";
 import { restaurants } from "@/services/api";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -7,17 +8,19 @@ import { Plus, Pencil, Store, Loader2, Trash2 } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function AdminRestaurants() {
+  const { user } = useAuth();
   const [list, setList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [seeding, setSeeding] = useState(false);
+  const [mineOnly, setMineOnly] = useState(true);
   const toast = useToast();
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [mineOnly]);
 
   async function load() {
     setLoading(true);
     try {
-      const res = await restaurants.list();
+      const res = await restaurants.list(mineOnly ? { mine: "true" } : {});
       setList(res.restaurants || []);
     } finally {
       setLoading(false);
@@ -39,8 +42,14 @@ export default function AdminRestaurants() {
 
   return (
     <div>
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-2xl font-bold">Restaurants</h1>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-bold">Restaurants</h1>
+          <div className="flex bg-[var(--muted)] rounded-lg p-0.5">
+            <button onClick={() => setMineOnly(true)} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${mineOnly ? "bg-[#e67e22] text-white" : "text-[var(--muted-foreground)]"}`}>Mes restaurants</button>
+            <button onClick={() => setMineOnly(false)} className={`px-3 py-1.5 text-sm rounded-md transition-colors ${!mineOnly ? "bg-[#e67e22] text-white" : "text-[var(--muted-foreground)]"}`}>Tous</button>
+          </div>
+        </div>
         <div className="flex gap-2">
           <Button variant="outline" onClick={handleSeed} disabled={seeding}>
             {seeding ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
@@ -51,22 +60,23 @@ export default function AdminRestaurants() {
       </div>
 
       {loading ? (
-        <p className="text-gray-500 text-center py-12">Chargement...</p>
+        <p className="text-[var(--muted-foreground)] text-center py-12">Chargement...</p>
       ) : list.length === 0 ? (
-        <Card><CardContent className="p-12 text-center text-gray-500 space-y-4">
-          <Store className="w-12 h-12 mx-auto text-gray-300" />
+        <Card><CardContent className="p-12 text-center text-[var(--muted-foreground)] space-y-4">
+          <Store className="w-12 h-12 mx-auto text-[var(--muted-foreground)]" />
           <p>Aucun restaurant</p>
           <Button variant="outline" onClick={handleSeed}>Générer un restaurant de démo</Button>
         </CardContent></Card>
       ) : (
+        <div className="overflow-x-auto">
         <div className="grid md:grid-cols-2 gap-4">
           {list.map((r) => (
             <Card key={r.id}>
               <CardContent className="p-4 flex justify-between items-center">
                 <div>
                   <h3 className="font-semibold">{r.name}</h3>
-                  <p className="text-sm text-gray-500">{r.address}</p>
-                  <p className="text-sm text-gray-500">{r.phone}</p>
+                  <p className="text-sm text-[var(--muted-foreground)]">{r.address}</p>
+                  <p className="text-sm text-[var(--muted-foreground)]">{r.phone}</p>
                 </div>
                 <div className="flex gap-1">
                   <Link to={`/admin/restaurants/${r.id}`}>
@@ -79,6 +89,7 @@ export default function AdminRestaurants() {
               </CardContent>
             </Card>
           ))}
+        </div>
         </div>
       )}
     </div>

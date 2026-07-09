@@ -5,11 +5,18 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, UserCheck, UserX, Search } from "lucide-react";
 
+const roleLabels = {
+  ADMIN: "Administrateur",
+  GERANT: "Gérant",
+  LIVREUR: "Livreur",
+  CLIENT: "Client",
+};
+
 const roleColors = {
   ADMIN: "bg-purple-100 text-purple-800",
   GERANT: "bg-blue-100 text-blue-800",
   LIVREUR: "bg-orange-100 text-orange-800",
-  CLIENT: "bg-gray-100 text-gray-800",
+  CLIENT: "bg-[var(--muted)] text-[var(--foreground)]",
 };
 
 export default function AdminUsers() {
@@ -50,21 +57,21 @@ export default function AdminUsers() {
       <h1 className="text-2xl font-bold mb-6 flex items-center gap-2"><Users className="w-5 h-5" /> Utilisateurs</h1>
 
       <div className="flex gap-2 mb-6 overflow-x-auto pb-2">
-        <button onClick={() => setFilter("")} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${!filter ? "bg-[#e67e22] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>Tous</button>
+        <button onClick={() => setFilter("")} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${!filter ? "bg-[#e67e22] text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}>Tous</button>
         {["ADMIN", "GERANT", "LIVREUR", "CLIENT"].map((r) => (
-          <button key={r} onClick={() => setFilter(r)} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${filter === r ? "bg-[#e67e22] text-white" : "bg-gray-100 text-gray-600 hover:bg-gray-200"}`}>{r}</button>
+          <button key={r} onClick={() => setFilter(r)} className={`px-3 py-1.5 rounded-full text-xs font-medium whitespace-nowrap ${filter === r ? "bg-[#e67e22] text-white" : "bg-[var(--muted)] text-[var(--muted-foreground)] hover:bg-[var(--muted)]"}`}>{roleLabels[r]}</button>
         ))}
       </div>
 
       {loading ? (
-        <p className="text-gray-500 text-center py-12">Chargement...</p>
+        <p className="text-[var(--muted-foreground)] text-center py-12">Chargement...</p>
       ) : list.length === 0 ? (
-        <Card><CardContent className="p-12 text-center text-gray-500">
-          <Users className="w-12 h-12 mx-auto text-gray-300 mb-3" />
+        <Card><CardContent className="p-12 text-center text-[var(--muted-foreground)]">
+          <Users className="w-12 h-12 mx-auto text-[var(--muted-foreground)] mb-3" />
           <p>Aucun utilisateur</p>
         </CardContent></Card>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-2 overflow-x-auto">
           {list.map((u) => (
             <Card key={u.id}>
               <CardContent className="p-4 flex items-center justify-between">
@@ -75,14 +82,14 @@ export default function AdminUsers() {
                   <div>
                     <div className="flex items-center gap-2">
                       <span className="font-medium">{u.name}</span>
-                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleColors[u.role]}`}>{u.role}</span>
+                      <span className={`text-xs font-medium px-2 py-0.5 rounded-full ${roleColors[u.role]}`}>{roleLabels[u.role] || u.role}</span>
                       {!u.isActive && <span className="text-xs text-red-500 font-medium">Inactif</span>}
                     </div>
-                    <div className="text-sm text-gray-500">
+                    <div className="text-sm text-[var(--muted-foreground)]">
                       {u.phone}
                       {u.email && <span className="ml-3">{u.email}</span>}
                     </div>
-                    <p className="text-xs text-gray-400">Inscrit le {new Date(u.createdAt).toLocaleDateString("fr-FR")}</p>
+                    <p className="text-xs text-[var(--muted-foreground)]">Inscrit le {new Date(u.createdAt).toLocaleDateString("fr-FR")}</p>
                   </div>
                 </div>
                 <Button variant={u.isActive ? "outline" : "default"} size="sm" onClick={() => handleToggle(u.id, u.name)}>

@@ -176,25 +176,40 @@ async function createRemote(req, res, next) {
 
 async function list(req, res, next) {
   try {
-    const { status, channel, restaurantId } = req.query;
+    const { status, channel, restaurantId, search, page, limit } = req.query;
     const where = {};
     if (status) where.status = status;
     if (channel) where.channel = channel;
     if (restaurantId) where.restaurantId = restaurantId;
+    if (req.query.userId) where.userId = req.query.userId;
 
     if (req.user?.role === "CLIENT") {
       where.userId = req.user.id;
     }
+    if (req.user?.role === "GERANT" && req.user.managedRestaurantId) {
+      where.restaurantId = req.user.managedRestaurantId;
+    }
 
-    const orders = await prisma.order.findMany({
-      where,
-      include: {
-        items: { include: { menuItem: { select: { id: true, name: true, price: true } } } },
-        restaurant: { select: { id: true, name: true } },
-      },
-      orderBy: { createdAt: "desc" },
-    });
-    res.json({ orders });
+    const pageNum = Math.max(1, parseInt(page) || 1);
+    const pageSize = Math.min(100, Math.max(1, parseInt(limit) || 20));
+
+    const [orders, total] = await Promise.all([
+      prisma.order.findMany({
+        where,
+        include: {
+          items: { include: { menuItem: { select: { id: true, name: true, price: true } } } },
+          restaurant: { select: { id: true, name: true } },
+          user: { select: { id: true, name: true, phone: true } },
+          delivery: { include: { deliveryPerson: { select: { id: true, name: true, phone: true } } } },
+        },
+        orderBy: { createdAt: "desc" },
+        skip: (pageNum - 1) * pageSize,
+        take: pageSize,
+      }),
+      prisma.order.count({ where }),
+    ]);
+
+    res.json({ orders, total, page: pageNum, totalPages: Math.ceil(total / pageSize) });
   } catch (err) {
     next(err);
   }
@@ -214,6 +229,9 @@ async function getById(req, res, next) {
     if (!order) {
       return res.status(404).json({ error: "Commande introuvable" });
     }
+    if (req.user?.role === "GERANT" && order.restaurantId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé" });
+    }
     res.json({ order });
   } catch (err) {
     next(err);
@@ -227,6 +245,9 @@ async function updateStatus(req, res, next) {
     const existing = await prisma.order.findUnique({ where: { id: req.params.id } });
     if (!existing) {
       return res.status(404).json({ error: "Commande introuvable" });
+    }
+    if (req.user?.role === "GERANT" && existing.restaurantId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé" });
     }
 
     const allowed = VALID_TRANSITIONS[existing.status];

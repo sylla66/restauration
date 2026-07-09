@@ -22,6 +22,10 @@ async function assign(req, res, next) {
       return res.status(404).json({ error: "Commande introuvable" });
     }
 
+    if (req.user?.role === "GERANT" && order.restaurantId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé" });
+    }
+
     if (order.channel !== "REMOTE" || order.subType !== "DELIVERY") {
       return res.status(400).json({ error: "Seules les commandes à distance avec livraison peuvent être assignées" });
     }
@@ -119,10 +123,15 @@ async function updateStatus(req, res, next) {
 
 async function list(req, res, next) {
   try {
-    const { status, deliveryPersonId } = req.query;
+    const { status, deliveryPersonId, restaurantId } = req.query;
     const where = {};
     if (status) where.status = status;
     if (deliveryPersonId) where.deliveryPersonId = deliveryPersonId;
+    if (req.user?.role === "GERANT" && req.user.managedRestaurantId) {
+      where.order = { restaurantId: req.user.managedRestaurantId };
+    } else if (restaurantId) {
+      where.order = { restaurantId };
+    }
 
     const deliveries = await prisma.delivery.findMany({
       where,
@@ -149,7 +158,6 @@ async function getMyDeliveries(req, res, next) {
     const deliveries = await prisma.delivery.findMany({
       where: {
         deliveryPersonId: req.user.id,
-        status: { not: "delivered" },
       },
       include: {
         order: {
@@ -163,6 +171,30 @@ async function getMyDeliveries(req, res, next) {
     });
 
     res.json({ deliveries });
+  } catch (err) {
+    next(err);
+  }
+}
+
+async function getById(req, res, next) {
+  try {
+    const delivery = await prisma.delivery.findUnique({
+      where: { id: req.params.id },
+      include: {
+        order: {
+          include: {
+            items: { include: { menuItem: { select: { id: true, name: true } } } },
+            restaurant: { select: { id: true, name: true, address: true, phone: true } },
+          },
+        },
+        deliveryPerson: { select: { id: true, name: true, phone: true } },
+      },
+    });
+    if (!delivery) return res.status(404).json({ error: "Livraison introuvable" });
+    if (req.user.role === "LIVREUR" && delivery.deliveryPersonId !== req.user.id) {
+      return res.status(403).json({ error: "Accès refusé" });
+    }
+    res.json({ delivery });
   } catch (err) {
     next(err);
   }
@@ -190,4 +222,4 @@ async function getByOrder(req, res, next) {
   }
 }
 
-module.exports = { assign, updateStatus, list, getMyDeliveries, getByOrder };
+module.exports = { assign, updateStatus, list, getMyDeliveries, getByOrder, getById };

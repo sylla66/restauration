@@ -30,7 +30,7 @@ export const auth = {
 };
 
 export const restaurants = {
-  list: () => request("/restaurants"),
+  list: (params) => request(`/restaurants?${new URLSearchParams(params || {})}`),
   getById: (id) => request(`/restaurants/${id}`),
   create: (body) => request("/restaurants", { method: "POST", body: JSON.stringify(body) }),
   update: (id, body) => request(`/restaurants/${id}`, { method: "PUT", body: JSON.stringify(body) }),
@@ -71,8 +71,9 @@ export const payments = {
 };
 
 export const deliveries = {
-  list: () => request("/deliveries"),
+  list: (params) => request(`/deliveries?${new URLSearchParams(params || {})}`),
   my: () => request("/deliveries/my"),
+  getById: (id) => request(`/deliveries/${id}`),
   getByOrder: (orderId) => request(`/deliveries/order/${orderId}`),
   assign: (body) => request("/deliveries/assign", { method: "POST", body: JSON.stringify(body) }),
   updateStatus: (id, status) => request(`/deliveries/${id}/status`, { method: "PATCH", body: JSON.stringify({ status }) }),

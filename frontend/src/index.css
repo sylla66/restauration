@@ -15,6 +15,20 @@
     --border: #e5e7eb;
     --radius: 0.5rem;
   }
+
+  .dark {
+    --background: #0f0f23;
+    --foreground: #f0f0f5;
+    --muted: #1a1a3e;
+    --muted-foreground: #9ca3af;
+    --border: #2d2d5e;
+  }
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  transition: background-color 0.2s, color 0.2s;
 }
 
 @keyframes slide-up {

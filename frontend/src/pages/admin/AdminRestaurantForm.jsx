@@ -153,7 +153,7 @@ export default function AdminRestaurantForm() {
 
   return (
     <div className="max-w-3xl">
-      <Link to="/admin/restaurants" className="flex items-center gap-2 text-gray-500 hover:text-[#e67e22] mb-6">
+      <Link to="/admin/restaurants" className="flex items-center gap-2 text-[var(--muted-foreground)] hover:text-[#e67e22] mb-6">
         <ArrowLeft className="w-4 h-4" /> Retour
       </Link>
 
@@ -187,23 +187,23 @@ export default function AdminRestaurantForm() {
             </CardHeader>
             <CardContent>
               {showCatForm && (
-                <form onSubmit={handleCatSave} className="flex gap-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                <form onSubmit={handleCatSave} className="flex gap-3 mb-4 p-3 bg-[var(--muted)] rounded-lg">
                   <Input value={catForm.name} onChange={(e) => setCatForm({ ...catForm, name: e.target.value })} placeholder="Nom" required />
                   <Input type="number" value={catForm.sortOrder} onChange={(e) => setCatForm({ ...catForm, sortOrder: e.target.value })} placeholder="Ordre" className="w-20" />
                   <Button size="sm" type="submit">{editingCatId ? "Modifier" : "Ajouter"}</Button>
-                  <button type="button" onClick={() => { setShowCatForm(false); setEditingCatId(null); }} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+                  <button type="button" onClick={() => { setShowCatForm(false); setEditingCatId(null); }} className="text-[var(--muted-foreground)] hover:text-gray-600"><X className="w-4 h-4" /></button>
                 </form>
               )}
               {data.categories?.length === 0 ? (
-                <p className="text-gray-500 text-sm">Aucune catégorie</p>
+                <p className="text-[var(--muted-foreground)] text-sm">Aucune catégorie</p>
               ) : (
                 <div className="space-y-1">
                   {data.categories?.map((cat) => (
-                    <div key={cat.id} className="flex items-center justify-between py-2 border-b border-gray-100 last:border-0">
+                    <div key={cat.id} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
                       <div>
                         <span className="font-medium text-sm">{cat.name}</span>
-                        {cat.sortOrder > 0 && <span className="text-xs text-gray-400 ml-2">({cat.sortOrder})</span>}
-                        <span className="text-xs text-gray-400 ml-2">{cat.menuItems?.length || 0} plats</span>
+                        {cat.sortOrder > 0 && <span className="text-xs text-[var(--muted-foreground)] ml-2">({cat.sortOrder})</span>}
+                        <span className="text-xs text-[var(--muted-foreground)] ml-2">{cat.menuItems?.length || 0} plats</span>
                       </div>
                       <div className="flex gap-1">
                         <Button variant="ghost" size="sm" onClick={() => editCat(cat)}><Pencil className="w-3 h-3" /></Button>
@@ -225,7 +225,7 @@ export default function AdminRestaurantForm() {
             </CardHeader>
             <CardContent>
               {showItemForm && (
-                <form onSubmit={handleItemSave} className="space-y-3 mb-4 p-3 bg-gray-50 rounded-lg">
+                <form onSubmit={handleItemSave} className="space-y-3 mb-4 p-3 bg-[var(--muted)] rounded-lg">
                   <div className="grid grid-cols-2 gap-3">
                     <div><Label>Nom</Label><Input value={itemForm.name} onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })} required /></div>
                     <div><Label>Prix (FCFA)</Label><Input type="number" value={itemForm.price} onChange={(e) => setItemForm({ ...itemForm, price: e.target.value })} required /></div>
@@ -244,28 +244,28 @@ export default function AdminRestaurantForm() {
                   </div>
                   <div className="flex gap-2">
                     <Button size="sm" type="submit">{editingItemId ? "Modifier" : "Ajouter"}</Button>
-                    <button type="button" onClick={() => { setShowItemForm(false); setEditingItemId(null); }} className="text-gray-400 hover:text-gray-600"><X className="w-4 h-4" /></button>
+                    <button type="button" onClick={() => { setShowItemForm(false); setEditingItemId(null); }} className="text-[var(--muted-foreground)] hover:text-gray-600"><X className="w-4 h-4" /></button>
                   </div>
                 </form>
               )}
               {data.categories?.length === 0 ? (
-                <p className="text-gray-500 text-sm">Ajoutez d'abord une catégorie</p>
+                <p className="text-[var(--muted-foreground)] text-sm">Ajoutez d'abord une catégorie</p>
               ) : (
                 <div className="space-y-2">
                   {data.categories?.map((cat) => (
                     <div key={cat.id}>
-                      <p className="text-xs font-semibold text-gray-500 uppercase mb-1">{cat.name}</p>
-                      {cat.menuItems?.length === 0 && <p className="text-xs text-gray-400 ml-2 mb-2">Aucun plat</p>}
+                      <p className="text-xs font-semibold text-[var(--muted-foreground)] uppercase mb-1">{cat.name}</p>
+                      {cat.menuItems?.length === 0 && <p className="text-xs text-[var(--muted-foreground)] ml-2 mb-2">Aucun plat</p>}
                       {cat.menuItems?.map((item) => (
-                        <div key={item.id} className="flex items-center justify-between py-1.5 px-2 hover:bg-gray-50 rounded-lg text-sm">
+                        <div key={item.id} className="flex items-center justify-between py-1.5 px-2 hover:bg-[var(--muted)] rounded-lg text-sm">
                           <div className="flex items-center gap-3">
                             <button onClick={() => handleToggle(item.id)} className={item.isAvailable ? "text-[#2ecc71]" : "text-gray-300"}>
                               {item.isAvailable ? <ToggleRight className="w-4 h-4" /> : <ToggleLeft className="w-4 h-4" />}
                             </button>
                             {item.image && <img src={item.image} alt="" className="w-8 h-8 rounded object-cover" />}
                             <div>
-                              <span className={item.isAvailable ? "" : "text-gray-400 line-through"}>{item.name}</span>
-                              {item.description && <span className="text-xs text-gray-400 ml-2">{item.description}</span>}
+                              <span className={item.isAvailable ? "" : "text-[var(--muted-foreground)] line-through"}>{item.name}</span>
+                              {item.description && <span className="text-xs text-[var(--muted-foreground)] ml-2">{item.description}</span>}
                             </div>
                           </div>
                           <div className="flex items-center gap-3">

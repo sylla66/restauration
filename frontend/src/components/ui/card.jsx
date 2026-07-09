@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 
 export function Card({ className, children, ...props }) {
-  return <div className={cn("bg-white rounded-xl border border-gray-200 shadow-sm", className)} {...props}>{children}</div>;
+  return <div className={cn("bg-[var(--background)] rounded-xl border border-[var(--border)] shadow-sm", className)} {...props}>{children}</div>;
 }
 
 export function CardHeader({ className, children, ...props }) {
-  return <div className={cn("p-4 border-b border-gray-100", className)} {...props}>{children}</div>;
+  return <div className={cn("p-4 border-b border-[var(--border)]", className)} {...props}>{children}</div>;
 }
 
 export function CardContent({ className, children, ...props }) {

@@ -1,8 +1,14 @@
 const prisma = require("../config/prisma");
 
+function getRestaurantId(req) {
+  if (req.user?.role === "GERANT") return req.user.managedRestaurantId;
+  return req.query.restaurantId;
+}
+
 async function sales(req, res, next) {
   try {
-    const { period, restaurantId } = req.query;
+    const { period } = req.query;
+    const restaurantId = getRestaurantId(req);
     const now = new Date();
     let startDate;
 
@@ -61,7 +67,8 @@ async function sales(req, res, next) {
 
 async function topItems(req, res, next) {
   try {
-    const { period, restaurantId, limit } = req.query;
+    const { period, limit } = req.query;
+    const restaurantId = getRestaurantId(req);
     const now = new Date();
     let startDate;
 
@@ -112,7 +119,8 @@ async function topItems(req, res, next) {
 
 async function channelDistribution(req, res, next) {
   try {
-    const { restaurantId, period } = req.query;
+    const { period } = req.query;
+    const restaurantId = getRestaurantId(req);
     const now = new Date();
     let startDate;
 
@@ -163,7 +171,8 @@ async function channelDistribution(req, res, next) {
 
 async function cancellationRate(req, res, next) {
   try {
-    const { restaurantId, period } = req.query;
+    const { period } = req.query;
+    const restaurantId = getRestaurantId(req);
     const now = new Date();
     let startDate;
 
@@ -198,7 +207,8 @@ async function cancellationRate(req, res, next) {
 
 async function deliveryTimes(req, res, next) {
   try {
-    const { restaurantId, period } = req.query;
+    const { period } = req.query;
+    const restaurantId = getRestaurantId(req);
     const now = new Date();
     let startDate;
 
@@ -247,7 +257,8 @@ async function deliveryTimes(req, res, next) {
 
 async function exportCSV(req, res, next) {
   try {
-    const { startDate, endDate, restaurantId } = req.query;
+    const { startDate, endDate } = req.query;
+    const restaurantId = getRestaurantId(req);
 
     const where = {
       createdAt: {

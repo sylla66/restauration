@@ -23,7 +23,7 @@ async function authenticate(req, res, next) {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true },
+      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, managedRestaurantId: true },
     });
 
     if (!user || !user.isActive) {
@@ -50,7 +50,7 @@ async function optionalAuth(req, res, next) {
 
     const user = await prisma.user.findUnique({
       where: { id: decoded.id },
-      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true },
+      select: { id: true, name: true, email: true, phone: true, role: true, isActive: true, managedRestaurantId: true },
     });
 
     req.user = user || null;
@@ -70,4 +70,25 @@ function authorize(...roles) {
   };
 }
 
-module.exports = { generateToken, authenticate, optionalAuth, authorize };
+function restrictToOwnRestaurant(req, res, next) {
+  if (req.user.role === "GERANT") {
+    const paramId = req.params.id || req.params.restaurantId || req.body?.restaurantId;
+    if (paramId && paramId !== req.user.managedRestaurantId) {
+      return res.status(403).json({ error: "Accès refusé : vous ne gérez pas ce restaurant" });
+    }
+    req.restaurantId = req.user.managedRestaurantId;
+  }
+  next();
+}
+
+function gerantFilter() {
+  return (req, res, next) => {
+    if (req.user.role === "GERANT") {
+      if (!req.where) req.where = {};
+      req.where.restaurantId = req.user.managedRestaurantId;
+    }
+    next();
+  };
+}
+
+module.exports = { generateToken, authenticate, optionalAuth, authorize, restrictToOwnRestaurant, gerantFilter };

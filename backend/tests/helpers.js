@@ -57,13 +57,15 @@ async function createRestaurant(token) {
 }
 
 async function cleanupDatabase() {
-  const collections = [
+  await prisma.user.updateMany({ where: { managedRestaurantId: { not: null } }, data: { managedRestaurantId: null } });
+  const deleteOrder = [
     "complaint", "review", "payment", "delivery", "orderItem", "order",
-    "menuItem", "category", "restaurant", "user",
+    "menuItem", "category", "restaurant",
   ];
-  for (const c of collections) {
+  for (const c of deleteOrder) {
     await prisma[c].deleteMany();
   }
+  await prisma.user.deleteMany();
 }
 
 module.exports = {

@@ -36,9 +36,9 @@ export default function Payments() {
       </h1>
 
       {loading ? (
-        <p className="text-gray-500 text-center py-12">Chargement...</p>
+        <p className="text-[var(--muted-foreground)] text-center py-12">Chargement...</p>
       ) : orderList.length === 0 ? (
-        <Card><CardContent className="p-12 text-center text-gray-500">Aucune commande</CardContent></Card>
+        <Card><CardContent className="p-12 text-center text-[var(--muted-foreground)]">Aucune commande</CardContent></Card>
       ) : (
         <div className="space-y-4">
           {orderList.map((order) => (
@@ -47,23 +47,23 @@ export default function Payments() {
                 <div className="flex justify-between items-center">
                   <div>
                     <p className="font-medium">#{order.orderNumber || order.id.slice(0, 8)}</p>
-                    <p className="text-sm text-gray-500">{new Date(order.createdAt).toLocaleDateString("fr-FR")} - {order.total} FCFA</p>
+                    <p className="text-sm text-[var(--muted-foreground)]">{new Date(order.createdAt).toLocaleDateString("fr-FR")} - {order.total} FCFA</p>
                   </div>
                   <Button size="sm" variant="outline" onClick={() => showPayments(order.id)}>Voir paiements</Button>
                 </div>
 
                 {selectedOrder === order.id && (
-                  <div className="mt-4 pt-4 border-t border-gray-100">
+                  <div className="mt-4 pt-4 border-t border-[var(--border)]">
                     {paymentList.length === 0 ? (
-                      <p className="text-sm text-gray-500">Aucun paiement enregistré</p>
+                      <p className="text-sm text-[var(--muted-foreground)]">Aucun paiement enregistré</p>
                     ) : (
                       <div className="space-y-2">
                         {paymentList.map((p) => (
-                          <div key={p.id} className="flex justify-between text-sm p-2 bg-gray-50 rounded">
+                          <div key={p.id} className="flex justify-between text-sm p-2 bg-[var(--muted)] rounded">
                             <div>
                               <p className="font-medium">{p.method}</p>
-                              <p className="text-xs text-gray-500">{new Date(p.createdAt).toLocaleString("fr-FR")}</p>
-                              {p.transactionId && <p className="text-xs text-gray-400">Ref: {p.transactionId}</p>}
+                              <p className="text-xs text-[var(--muted-foreground)]">{new Date(p.createdAt).toLocaleString("fr-FR")}</p>
+                              {p.transactionId && <p className="text-xs text-[var(--muted-foreground)]">Ref: {p.transactionId}</p>}
                             </div>
                             <div className="text-right">
                               <p className="font-medium">{p.amount} FCFA</p>
